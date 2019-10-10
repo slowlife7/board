@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    
+    <style>
+     
+      h1{
+        text-align: center;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      #wrap {
+        width: 100%;
+        height: 700px;
+        margin: 0 auto;
+        line-height: 700px;
+      }
+
+      header {
+        width: 100%;
+        height: 100px;
+        line-height: 100px;
+        margin: 0 auto;
+        border: 1px solid #cccccc;
+      }
+
+      footer {
+        width: 99%;
+        height: 70px;
+        line-height: 70px;
+      }
+
+      section .section_content .section_search {
+        width:700px;
+        height: 50px;
+        line-height: 50px;
+        margin: 0 auto;
+      }
+  
+      section .section_content .section_board{
+        width: 700px;
+        height: 500px;
+        line-height: 500px;
+        margin: 0 auto;
+        border: 1px solid #cccccc;
+        background-color: #f8f8f8;
+        overflow-y:auto; 
+      }
+
+      section .section_content .section_board li {
+        list-style-type: none;
+      }
+
+      section .section_content .section_board div {
+        height: 30px;
+        line-height: 30px;
+        float : left;
+        border: 1px solid #cccccc;
+        background-color: #ffffff;
+        margin-top: 1px;
+      }
+
+      section .section_content .section_board .title_board {
+        width: 320px;
+        padding-left : 20px;
+        border-right: 0;
+        border-left : 5px solid lightblue;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        font-size: 0.8em;
+      }
+
+      section .section_content .section_board .summary_board {
+        width: 150px;
+        text-align: center;
+        border-left: 0; border-right: 0;
+      }
+
+      section .section_content .section_board .author_board {
+        width: 100px;
+        border-left: 0;
+        font-size: 0.6em;
+      }
+
+      .pagination {
+        width: 700px;
+        height: 60px;
+        line-height: 60px;
+        margin: 0 auto;
+        margin-top: 20px;
+       
+      }
+
+      .pagination ul {
+        width: 400px;
+        height : 40px;
+        line-height: 40px;
+        margin: 0 auto;
+        
+      }
+
+      .pagination li a {
+        text-decoration: none;
+        color:#000000;
+        padding: 18px;
+        
+      }
+
+      .pagination li {
+        float:left;
+        width: 40px;
+        list-style: none;
+        line-height: 20px;
+        height: 20px;
+        text-align: center;
+      }
+
+      #section_header > #video {
+            display: none;
+            height:350px;
+            width:700px;
+            margin:0 auto;
+            line-height: 0;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <header>
+        <h1>Board</h1>
+      </header>
+
+      <nav>
+
+      </nav>
+
+      <section>
+        <div class="section_content">
+          <div class="section_search">
+            <input type="text"/>
+            <button>search</button>
+          </div>
+
+          <div id="section_header">
+            <div id="video">
+
+            </div>
+          </div>
+
+          <div class="section_board">
+            <ul>
+              
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="pagination">
+          <ul>
+
+          </ul>
+        </div>
+      </footer>
+    </div>
+  </body>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', function( ) {
+        console.log('aaaa');
+        httpGetRequest('/video')
+        .then( (result) => {
+            console.log(result);
+            paintPageList(result);
+        })
+
+        const search_click = document.querySelector('.section_search > button');
+        search_click.addEventListener('click', function(event) {
+            const search_txt = document.querySelector('.section_search > input');
+            console.dir(search_txt.value);
+
+            httpGetRequest('/video/'+search_txt.value)
+            .then( (result) => {
+                console.log(result);
+                paintPageList(result);
+            });
+        });
+    });
+
+    function httpGetRequest(url, responseType) {
+        return new Promise((resolve, reject) => {
+            try {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", url);
+            console.log(url.split("?")[0]);
+            xhr.responseType = "json";
+            xhr.onerror = event => {
+                reject(`Network error: ${event}`);
+            };
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                resolve({...xhr.response, url:url.split("?")[0]});
+                } else {
+                reject(`XHR load error: ${xhr.statusText}`);
+                }
+            };
+            xhr.send();
+            } catch (err) {
+            reject(err.message);
+            }
+        });
+    };
+
+    document.querySelector( '.pagination ul' ).addEventListener('click', function(target) {
+        console.log(target.target.id);
+            httpGetRequest(target.target.id)
+            .then( (result) => {
+                console.log(result);
+                paintPageList(result);
+            });
+    });
+    
+    function paintPageList( json) {
+        const wrapperPageList = document.querySelector( '.pagination ul' );
+        removePageListBox(wrapperPageList);
+        if( json.prev ) {
+
+            const pageBox = makePageListBox({
+                id: json.url+'?page_no='+json.prev,
+                text: '<<'
+            });
+            wrapperPageList.appendChild(pageBox);
+        }
+        
+        for( let i = json.first; i <= json.last; i++ ) {
+        
+            const pageBox = makePageListBox({
+                id: json.url+'?page_no='+i,
+                text: i,
+            });
+            wrapperPageList.appendChild(pageBox);
+        }
+        
+        if( json.next ) {
+        
+            const pageBox = makePageListBox({
+                id: json.url+'?page_no='+json.next,
+                text: '>>',
+            });
+            wrapperPageList.appendChild(pageBox);
+        }
+    }
+   
+
+    function makePageListBox( json ) {
+        let liTag = document.createElement('li');
+        let aTag = document.createElement('a');
+        aTag.setAttribute('href', '#');
+        aTag.setAttribute('id', json.id);
+        aTag.text = json.text;
+        liTag.appendChild(aTag);
+        return liTag;
+    }
+
+    function removePageListBox(wrapperTag) {
+        while( wrapperTag.hasChildNodes() ) {
+            wrapperTag.removeChild(wrapperTag.firstChild);
+        }
+    }
+  </script>
+</html>
