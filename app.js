@@ -3,22 +3,23 @@ const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
 const indexRouter = require('./route/index');
+const videoRouter = require('./route/video');
 const loginRouter = require('./route/login');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://rasgo.iptime.org:27017/toapp6', {useNewUrlParser: true}, (err) => {
-	if( err ) {
+mongoose.connect('mongodb://rasgo.iptime.org:27017/toapp6', {useNewUrlParser: true})
+.then( () => { console.log('=====>Succeeded in connecting..'); } )
+.catch( (err) => { console.log(err); })
 
-	} else {
-		console.log(`===> Succeeded in connecting`);
-	}
-});
 
+app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')));
 
 app.use('*.ico', FaviconHandler);
 
-app.use('/', indexRouter);
+
+app.use('/video', videoRouter);
 app.use('/test/test1', loginRouter);
+app.use('/', indexRouter);
 app.use(ErrorHandler);
 app.use(CatchError);
 
