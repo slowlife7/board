@@ -3,9 +3,24 @@ const Video = require("../model/video");
 const router = express.Router();
 const boardAPI = require("../private/javascript/boardAPI")(Video);
 
+router.get("/authentication", function(req, res, next) {
+  console.log("play");
+  const session = req.session;
+  if (session.userid) {
+    res.json({ result: 1 });
+  } else {
+    res.json({ result: 204 });
+  }
+});
+
 router.get("/*.mp4", function(req, res, next) {
   const file = "/home/bear/video" + decodeURI(req.path);
   console.log(file);
+  const session = req.session;
+  if (!session.userid) {
+    res.status(404).end();
+  }
+
   if (!fs.existsSync(file)) {
     return;
   }

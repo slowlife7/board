@@ -9,19 +9,19 @@
             a { text-decoration: none; }
             input:focus {outline:none;}
             
-            header { position: relative; text-align: center; background-color: #2922E6; color:#ffffff; }
+            header { position: relative; text-align: center; background-color: #337ab7; color:#ffffff; padding-bottom: 10px;}
             header > .header_left { position:absolute; top: 10px; left:5px; width: 40px; text-align: center;}
             header > .header_left a { color: #ffffff; }
             header > .header_right { position:absolute; top: 10px; right:10px; width: 40px; text-align: center; }
             header > .header_search { position:relative; overflow: hidden; width:100%; height:50px; }
-            header > .header_search input { float:left; font-size:1.5em; width:100%; height: 48px; border: 5px solid #2922E6; box-sizing: border-box;}
+            header > .header_search input { float:left; font-size:1.5em; width:100%; height: 48px; border: 5px solid #337ab7; box-sizing: border-box;}
             header > .header_search img { position:absolute; right:0; top:0; height:48px;}
 
             #toggle { display: none; }
             #toggle:checked ~ .wrap_gnb  { display: block; }
 
             .wrap_gnb { display: none; }
-            .wrap_gnb > .gnb ul { overflow: hidden; background-color: #2922E6; }
+            .wrap_gnb > .gnb ul { overflow: hidden; background-color: #337ab7; }
             .wrap_gnb > .gnb ul li { float:left; padding: 4px 15px; font-size:1.1em; }
             .wrap_gnb > .gnb ul li a { color: #ffffff; }
 
@@ -48,7 +48,7 @@
             .text_full { width:100%; display:block; color: #555; background-color: #ffffff; font-size:1.4em; border:1px solid #cccccc; box-sizing: border-box; padding: 5px 10px; }
             .login_wrap > .login_form > .login_content form:nth-child(3) { display:inline;}
             .login_wrap > .login_form input:nth-child(2) { margin-bottom: 10px;}
-            .login_wrap > .login_form input:last-child { margin-top: 10px; background-color:#2922E6; color:#fafafa; }
+            .login_wrap > .login_form input:last-child { margin-top: 10px; background-color:#337ab7; color:#fafafa; }
 
         </style>
     </head>
@@ -56,34 +56,34 @@
         <input id="toggle" type="checkbox"/>
         <header>
             <div class="header_left">
-                <label for="toggle" onclick=""><img src="/assets/iconmonstr-menu.png" alt="Menu"></label>
+                <label for="toggle" onclick=""><img src="/assets/iconmonstr-menu-1-32.png" alt="Menu"></label>
             </div>
             <div class="header_main">
                 <h1>LIVE</h1>
             </div>
             <div class="header_right">
-                <a href="#"></a><img src="/assets/iconmonstr-log-out.png" alt="Login"></a>
+                <a href="#"></a><img src="/assets/iconmonstr-log-out-2-32.png" alt="Login"></a>
             </div>
             <div class="header_search">
                 <input type="text"/>
-                <img src="/assets/iconmonstr-magnifier.png" alt="search"/>
+                <img src="/assets/iconmonstr-magnifier-4-48.png" alt="search"/>
             </div>
         </header>
         <div class="wrap_gnb">
             <div class="gnb">
                 <ul>
-                    <li><a href>GNB1</a></li>
-                    <li><a href>GNB2</a></li>
-                    <li><a href>GNB3</a></li>
-                    <li><a href>GNB4</a></li>
-                    <li><a href>GNB5</a></li>
+                    <li><a href>예능</a></li>
+                    <li><a href>영화</a></li>
+                    <li><a href>다큐</a></li>
+                    <li><a href>미드</a></li>
+                    <li><a href>기타</a></li>
                 </ul>
             </div>
         </div>
 
         <content>
             <div class="wrap_content">
-              
+             
             </div>
 
             <div class="pagination_content">
@@ -117,15 +117,30 @@
                 });
 
                 document.querySelector('.wrap_content').addEventListener('click', function(target) {
+                  const element = target.target;
+                  console.dir(element);
+                    /*if(element.tagName === 'VIDEO' || element.className ==='login_wrap') {
+                      return;
+                    }*/
+                    if(element.parentElement.className !== 'title_board') {
+                      return;
+                    }
                     const wrapperContent = document.querySelector('.wrap_content');
                     removePageListBox(wrapperContent);
 
                     const wrapperPageList = document.querySelector( '.pagination_content' );
                     removePageListBox(wrapperPageList);
 
-                    const element = target.target;
-                    console.dir(element);
-                    document.querySelector('.wrap_content').appendChild(makeVideo(encodeURI(element.innerText+'.mp4')));
+                    httpGetRequest('/video/authentication')
+                    .then( (result) => {
+                      if(result.result === 204) {
+                        document.querySelector('.wrap_content').append(makeLoginForm());
+                      } else {
+                        document.querySelector('.wrap_content').append(makeVideo(encodeURI(element.innerText+'.mp4')));
+                      }
+                    });
+
+                    //document.querySelector('.wrap_content').appendChild(makeVideo(encodeURI(element.innerText+'.mp4')));
                 });
 
                 document.querySelector( '.pagination_content' ).addEventListener('click', function(target) {
@@ -146,6 +161,15 @@
                 });
             });
 
+            function makeVideoPlay(src) {
+              const element =document.createElement('div');
+              element.innerHTML = '<video width="100%" height="auto" controls> \
+                <source src="/video"+src type="video/mp4"\
+                </source>\
+                </video>';
+              return element;
+            }
+
             function makeLoginForm() {
                 const element = document.createElement('div');
                 element.className = 'login_wrap';
@@ -154,7 +178,7 @@
                         <h1>로그인</h1>         \
                     </div>                      \
                     <div class="login_content">     \
-                        <form action="login" method="post">     \
+                        <form action="/mobile/login" method="post">     \
                             <input class="text_full" name="userid" type="text" placeholder="아이디">\
                             <input class="text_full" name="password" type="password" placeholder="비밀번호">\
                             <input name="autologin" type="checkbox">로그인 유지\
@@ -171,7 +195,7 @@
                     const xhr = new XMLHttpRequest();
                     xhr.open("GET", url);
                     console.log(url.split("?")[0]);
-                    xhr.responseType = "json";
+                    xhr.responseType = responseType || "json";
                     xhr.onerror = event => {
                         reject(`Network error: ${event}`);
                     };

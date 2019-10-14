@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
+const session = require("express-session");
+//const bodyParser = require("body-parser");
 const app = express();
 const indexRouter = require("./route/index");
 const mobileRouter = require("./route/mobile");
@@ -17,13 +19,23 @@ mongoose
   });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: "herry@#$1",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+  })
+);
 
 app.use("*.ico", FaviconHandler);
 app.use("/video", videoRouter);
 app.use("/test/test1", loginRouter);
+app.use("/mobile", mobileRouter);
 app.use("/", indexRouter);
-app.use("/mobile/test", mobileRouter);
+
 app.use(ErrorHandler);
 app.use(CatchError);
 
