@@ -83,29 +83,11 @@
 
         <content>
             <div class="wrap_content">
-                <ul>
-                    <li>TEST1</li>
-                    <li>TEST2</li>
-                    <li>TEST3</li>
-                    <li>TEST4</li>
-                    <li>TEST5</li>
-                    <li>TEST6</li>
-                    <li>TEST7</li>
-                </ul>
+              
             </div>
 
             <div class="pagination_content">
-                <ul>
-                    <li><a href="#"><<</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">6</a></li>
-                    <li><a href="#">7</a></li>
-                    <li><a href="#">>></a></li>
-                </ul>
+               
             </div>
         </content>
 
@@ -134,7 +116,7 @@
                     });
                 });
 
-                document.querySelector('.wrap_content ul').addEventListener('click', function(target) {
+                document.querySelector('.wrap_content').addEventListener('click', function(target) {
                     const wrapperContent = document.querySelector('.wrap_content');
                     removePageListBox(wrapperContent);
 
@@ -146,7 +128,7 @@
                     document.querySelector('.wrap_content').appendChild(makeVideo(encodeURI(element.innerText+'.mp4')));
                 });
 
-                document.querySelector( '.pagination_content ul' ).addEventListener('click', function(target) {
+                document.querySelector( '.pagination_content' ).addEventListener('click', function(target) {
                     console.log(target.target.id);
                         httpGetRequest(target.target.id)
                         .then( (result) => {
@@ -208,14 +190,15 @@
             };
 
             function paintPostList( json ) {
-                const wrapperPostList = document.querySelector('.wrap_content ul');
+                const wrapperPostList = document.querySelector('.wrap_content');
                 removePageListBox(wrapperPostList);
-                
+                const ul = document.createElement('ul');
+                wrapperPostList.appendChild(ul);
                 json.items.forEach((item) => {
                     console.log(item.title);
                     /*const li = document.createElement('li');
                     li.innerText = item.title;*/
-                    wrapperPostList.appendChild((makeRowPost(item)));
+                    ul .appendChild((makeRowPost(item)));
                 });
             }
 
@@ -246,28 +229,31 @@
                             
 
             function paintPageList( json) {
-                const wrapperPageList = document.querySelector( '.pagination_content ul' );
+                const wrapperPageList = document.querySelector( '.pagination_content' );
                 removePageListBox(wrapperPageList);
+                const ul = document.createElement('ul');
+                wrapperPageList.appendChild(ul);
+
                 if( json.prev ) {
                     const pageBox = makePageListBox({
                         id: json.url+'?page_no='+json.prev,
                         text: '<<'
                     });
-                    wrapperPageList.appendChild(pageBox);
+                    ul.appendChild(pageBox);
                 }
                 for( let i = json.first; i <= json.last; i++ ) {
                     const pageBox = makePageListBox({
                         id: json.url+'?page_no='+i,
                         text: i,
                     });
-                    wrapperPageList.appendChild(pageBox);
+                    ul.appendChild(pageBox);
                 }
                 if( json.next ) {
                     const pageBox = makePageListBox({
                         id: json.url+'?page_no='+json.next,
                         text: '>>',
                     });
-                    wrapperPageList.appendChild(pageBox);
+                    ul.appendChild(pageBox);
                 }
             }
 
