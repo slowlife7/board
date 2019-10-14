@@ -20,14 +20,15 @@ router.post("/login", (req, res, next) => {
     res.redirect("/mobile");
   } else {
     user.findOne({ userid: req.body.userid }).then(result => {
-      console.log(result.passwd);
-      console.log(req.body.password);
-      if (result.passwd === req.body.password) {
+      if (result == null) {
+        console.log("no result");
+        res.status(204).end();
+      } else if (result.passwd === req.body.password) {
         session.userid = req.body.userid;
         session.passwd = req.body.password;
         res.redirect("/mobile");
       } else {
-        res.redirect("/mobile/login");
+        res.status(204).end();
       }
     });
     //find mongodb
